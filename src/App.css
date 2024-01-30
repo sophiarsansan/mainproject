@@ -1,38 +1,49 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* App.css */
+.navbar {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: space-around;
+  background-color: #222e50;
+  padding: 10px 0;
+}
+
+.navbar button {
+  background-color:#fccb06;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px; /* Add this line */
+  transition: 0.2s all;
+  box-shadow: 0 0 10px black;
+}
+
+.navbar button:hover {
+  background-color: #6F8FAF;
+}
+
+.navbar .navbar-link { /* Add this new class */
+  text-decoration: none;
+  color: black;
+}
+
+.home-page {
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: top;
+  height: 100vh;
+  font-size: 2em;
+  background-color: #edf7f6;
+  color: #222e50;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.myProfile{
+  background-color: lightgrey;
+  width: 300px;
+  border: 15px solid green;
+  padding: 50px;
+  margin: 20px;
 }
