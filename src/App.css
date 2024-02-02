@@ -1,49 +1,102 @@
-/* App.css */
-.navbar {
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #edf7f6;
+}
+
+.app-container {
   display: flex;
-  justify-content: space-around;
+}
+
+.collapsible-navbar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
   background-color: #222e50;
-  padding: 10px 0;
-}
-
-.navbar button {
-  background-color:#fccb06;
-  border: none;
-  padding: 10px 20px;
+  color: white;
   text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 12px; /* Add this line */
-  transition: 0.2s all;
-  box-shadow: 0 0 10px black;
 }
 
-.navbar button:hover {
+.collapsible-navbar.open {
+  width: 250px;
+}
+
+.nav-logo {
+  padding: 20px;
+  color: #fccb06;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.collapsible-navbar a {
+  padding: 16px;
+  text-decoration: none;
+  font-size: 18px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+  border-bottom: 1px solid #6F8FAF;
+}
+
+.collapsible-navbar a:hover {
   background-color: #6F8FAF;
 }
 
-.navbar .navbar-link { /* Add this new class */
-  text-decoration: none;
-  color: black;
+.toggle-navbar {
+  font-size: 25px;
+  padding: 16px;
+  background-color: #fccb06;
+  color: white;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+}
+
+.content {
+  width: 100%;
+  padding: 16px;
+  transition: margin-left 0.5s;
+}
+
+.shifted-content {
+  margin-left: 250px;
 }
 
 .home-page {
   display: flex;
   justify-content: center;
-  align-items: top;
+  align-items: center;
   height: 100vh;
   font-size: 2em;
   background-color: #edf7f6;
   color: #222e50;
 }
 
-.myProfile{
-  background-color: lightgrey;
-  width: 300px;
-  border: 15px solid green;
-  padding: 50px;
-  margin: 20px;
+.count-container {
+  background-color: #edf7f6;
+  color: #222e50;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  margin-bottom: auto;
 }
+
+h1 {
+  font-size: xx-large;
+}
+
+.logo-image {
+  width: 80px;
+  height: auto;
+  display: block;
+  margin: 10px auto;
+}
+
+/* Add other styles as needed */

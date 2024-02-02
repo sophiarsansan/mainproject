@@ -4,15 +4,28 @@ import './Task.css';
 import InputField from '../components/InputField';
 import { Todo } from '../model';
 import TodoList from '../components/TodoList';
-import { readTodoEntries, writeTodoEntries } from '../components/taskService'; // Import task service
+import { writeTodoEntries } from '../components/taskService'; // Import task service
+import { db } from '../firebase';
+import { ref, set, onValue } from "firebase/database";
 
 const Task: React.FC = () => {
   const [todo, setTodo] = useState<string>("");
   const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
-    const storedTasks = readTodoEntries();
-    setTodos(storedTasks);
+    const fetchTodoEntries = async () => {
+      const todoEntriesRef = ref(db, 'todo_entries');
+      onValue(todoEntriesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setTodos(snapshot.val() || []);
+        } else {
+          console.error('No data available');
+          setTodos([]);
+        }
+      });
+    };
+
+    fetchTodoEntries();
   }, []);
 
   const handleAdd = (e: React.FormEvent) => {
@@ -23,21 +36,33 @@ const Task: React.FC = () => {
       setTodos([...todos, newTask]);
       writeTodoEntries([...todos, newTask]);
       setTodo('');
+
+      // Update Firebase
+      const todoEntriesRef = ref(db, 'todo_entries');
+      set(todoEntriesRef, [...todos, newTask]);
     }
   };
 
-  const handleEdit = (id: number, editedTodo: string, isDone: boolean) => { // Add isDone parameter
+  const handleEdit = (id: number, editedTodo: string, isDone: boolean) => {
     const updatedTasks = todos.map((task) =>
       task.id === id ? { ...task, todo: editedTodo, isDone } : task
     );
     setTodos(updatedTasks);
     writeTodoEntries(updatedTasks);
+
+    // Update Firebase
+    const todoEntriesRef = ref(db, 'todo_entries');
+    set(todoEntriesRef, updatedTasks);
   };
 
   const handleDelete = (id: number) => {
     const updatedTasks = todos.filter((task) => task.id !== id);
     setTodos(updatedTasks);
     writeTodoEntries(updatedTasks);
+
+    // Update Firebase
+    const todoEntriesRef = ref(db, 'todo_entries');
+    set(todoEntriesRef, updatedTasks);
   };
 
   return (

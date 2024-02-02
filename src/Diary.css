@@ -1,7 +1,7 @@
 /* App.css */
 body {
     margin: 0;
-    font-family: "Neucha", cursive;
+    font-family: 'Arial', sans-serif;
     background-color: #edf7f6;
   }
   
@@ -20,7 +20,7 @@ body {
     justify-content: space-around;
     padding-top: 34px;
     height: 100vh;
-    font-family: "Neucha", cursive;
+    font-family: 'Arial', sans-serif;
   }
   
   .leftPanel {
@@ -36,7 +36,8 @@ body {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
-    font-family: "Neucha", cursive;
+    font-family: 'Arial', sans-serif;
+    /* font-family: "Neucha", cursive; */
   }
   
   .textArea {

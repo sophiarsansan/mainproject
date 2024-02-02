@@ -1,0 +1,86 @@
+.EventPlanner {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #edf7f6;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.input-container {
+  width: 45%;
+}
+
+.events-list {
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+thead {
+  background-color: #fccb06;
+}
+
+tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+input,
+button {
+  margin-bottom: 10px;
+}
+
+.delete-button,
+.pin-button {
+  cursor: pointer;
+  padding: 5px 10px;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.delete-button {
+  background-color: #ff5757;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #d43f3f;
+}
+
+.pin-button {
+  background-color: transparent;
+  font-size: 20px;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.pin-button:hover {
+  color: green;
+}
+
+/* Add other styles as needed */

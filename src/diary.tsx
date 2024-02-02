@@ -1,9 +1,12 @@
 // DiaryApp.tsx
 import React, { useState, useEffect } from 'react';
-import { readDiaryEntries, writeDiaryEntries } from './diary_components/diaryService';
+import { writeDiaryEntries } from './diary_components/diaryService';
 import './Diary.css'; // Import the CSS file
 import DiaryEntryDisplay from './diary_components/DiaryEntryDisplay';
 import { BsPinAngle, BsPinAngleFill } from "react-icons/bs";
+import {db} from './firebase'; // Import Firebase
+import { ref, set, onValue } from "firebase/database"; // Import Firebase database functions
+import './EventPlanner.css';
 
 interface DiaryEntry {
   id: string;
@@ -19,6 +22,22 @@ const DiaryApp: React.FC = () => {
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchDiaryEntries = async () => {
+      const diaryEntriesRef = ref(db, 'diary_entries');
+      onValue(diaryEntriesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          setDiaryEntries(snapshot.val() || []);
+        } else {
+          console.error('No data available');
+          setDiaryEntries([]);
+        }
+      });
+    };
+
+    fetchDiaryEntries();
+  }, []);
+
   const handleEditEntry = (editedEntry: { title: string; content: string }) => {
     const updatedEntries = diaryEntries.map((entry) =>
       entry.id === selectedEntryId
@@ -27,6 +46,10 @@ const DiaryApp: React.FC = () => {
     );
     setDiaryEntries(updatedEntries);
     writeDiaryEntries(updatedEntries);
+
+    // Update Firebase
+    const diaryEntriesRef = ref(db, 'diary_entries');
+    set(diaryEntriesRef, updatedEntries);
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +74,10 @@ const DiaryApp: React.FC = () => {
     writeDiaryEntries(updatedEntries);
     setDiaryTitle('');
     setDiaryContent('');
+
+    // Update Firebase
+    const diaryEntriesRef = ref(db, 'diary_entries');
+    set(diaryEntriesRef, updatedEntries);
   };
 
   const handleDeleteEntry = (id: string) => {
@@ -58,6 +85,10 @@ const DiaryApp: React.FC = () => {
     setDiaryEntries(updatedEntries);
     writeDiaryEntries(updatedEntries);
     setSelectedEntryId(null);
+
+    // Update Firebase
+    const diaryEntriesRef = ref(db, 'diary_entries');
+    set(diaryEntriesRef, updatedEntries);
   };
 
   const toggleDrawer = (id: string) => {
@@ -70,63 +101,62 @@ const DiaryApp: React.FC = () => {
     );
     setDiaryEntries(updatedEntries);
     writeDiaryEntries(updatedEntries);
-  };
 
-  useEffect(() => {
-    const storedEntries = readDiaryEntries();
-    setDiaryEntries(storedEntries);
-  }, []);
+    // Update Firebase
+    const diaryEntriesRef = ref(db, 'diary_entries');
+    set(diaryEntriesRef, updatedEntries);
+  };
 
   // Sort entries to display pinned entries first
   const sortedEntries = [...diaryEntries].sort((a, b) => (a.pinned === b.pinned ? 0 : a.pinned ? -1 : 1));
 
   return (
     <div>
-    <div className="banner">AWS NOTEPAD</div>
-    <div className="container">
-      <div className="leftPanel">
-        <h1>Note App</h1>
-        <input
-          type="text"
-          className="titleInput"
-          placeholder="Title"
-          value={diaryTitle}
-          onChange={handleTitleChange}
-        />
-        <textarea
-          className="textArea"
-          placeholder="Write your thoughts..."
-          value={diaryContent}
-          onChange={handleDiaryChange}
-        />
-        <button className="button" onClick={handleDiarySubmit}>
-          Add Entry
-        </button>
-      </div>
-      <div className="rightPanel">
-        <div>
-          {sortedEntries.map((entry) => (
-            <div key={entry.id} className={`entryItem ${entry.pinned ? 'pinnedEntry' : 'unpinnedEntry'}`}>
-              <div className="entryHeader" onClick={() => toggleDrawer(entry.id)}>
-                <h3>{entry.title}</h3>
-                <p>{entry.date}</p>
-                <button className="button" onClick={() => handlePinEntry(entry.id)}>
-                  {entry.pinned ? <BsPinAngleFill /> : <BsPinAngle />}
-                </button>
+      <div className="banner">AWS NOTEPAD</div>
+      <div className="container">
+        <div className="leftPanel">
+          <h1>Note App</h1>
+          <input
+            type="text"
+            className="titleInput"
+            placeholder="Title"
+            value={diaryTitle}
+            onChange={handleTitleChange}
+          />
+          <textarea
+            className="textArea"
+            placeholder="Write your thoughts..."
+            value={diaryContent}
+            onChange={handleDiaryChange}
+          />
+          <button className="button" onClick={handleDiarySubmit}>
+            Add Entry
+          </button>
+        </div>
+        <div className="rightPanel">
+          <div>
+            {sortedEntries.map((entry) => (
+              <div key={entry.id} className={`entryItem ${entry.pinned ? 'pinnedEntry' : 'unpinnedEntry'}`}>
+                <div className="entryHeader" onClick={() => toggleDrawer(entry.id)}>
+                  <h3>{entry.title}</h3>
+                  <p>{entry.date}</p>
+                  <button className="button" onClick={() => handlePinEntry(entry.id)}>
+                    {entry.pinned ? <BsPinAngleFill /> : <BsPinAngle />}
+                  </button>
+                </div>
+                {selectedEntryId === entry.id && (
+                  <DiaryEntryDisplay
+                    entry={entry}
+                    onClose={() => setSelectedEntryId(null)}
+                    onDelete={() => handleDeleteEntry(entry.id)}
+                    onEdit={handleEditEntry}
+                  />
+                )}
               </div>
-              {selectedEntryId === entry.id && (
-                <DiaryEntryDisplay
-                  entry={entry}
-                  onClose={() => setSelectedEntryId(null)}
-                  onDelete={() => handleDeleteEntry(entry.id)}
-                  onEdit={handleEditEntry}
-                />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

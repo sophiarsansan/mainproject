@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import './Drive.css';
+import { ref, set, onValue } from "firebase/database";
+import { db } from "../firebase";
 
 class Drive extends Component {
   constructor(props) {
@@ -39,17 +41,20 @@ class Drive extends Component {
 
       // Save the updated files array to local storage
       localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
+      localStorage.setItem(`fileDetails_${fileId}`, JSON.stringify(newFile)); // Store individual file details
 
-      // Store the file details in local storage
-      localStorage.setItem(`fileDetails_${fileId}`, JSON.stringify(newFile));
+      // Store the file details in Firebase
+      const driveFilesRef = ref(db, 'drive_files');
+      set(driveFilesRef, updatedFiles);
 
-      // Store the file content in local storage
+      // Store the file content in Firebase
+      const fileContentRef = ref(db, `fileContent_${fileId}`);
       const reader = new FileReader();
       reader.onload = (e) => {
         const fileContent = e.target.result;
-        localStorage.setItem(`fileContent_${fileId}`, fileContent);
+        set(fileContentRef, fileContent);
       };
-      reader.readAsText(selectedFile);
+      reader.readAsDataURL(selectedFile); // Read the file as a data URL
 
       // Clear the selected file
       this.setState({ selectedFile: null });
@@ -60,18 +65,24 @@ class Drive extends Component {
   };
 
   downloadFile = (fileId) => {
-    const fileContent = localStorage.getItem(`fileContent_${fileId}`);
-    const fileDetails = localStorage.getItem(`fileDetails_${fileId}`);
+    const fileContentRef = ref(db, `fileContent_${fileId}`);
+    onValue(fileContentRef, (snapshot) => {
+      const fileContent = snapshot.exists() ? snapshot.val() : '';
+      const fileDetails = localStorage.getItem(`fileDetails_${fileId}`);
 
-    if (fileContent && fileDetails) {
-      const { name, type } = JSON.parse(fileDetails);
+      if (fileContent && fileDetails) {
+        const { name, type } = JSON.parse(fileDetails);
 
-      const blob = new Blob([fileContent], { type });
-      const link = document.createElement("a");
-      link.href = window.URL.createObjectURL(blob);
-      link.download = `${name}_${fileId}.${type.split('/')[1]}`;
-      link.click();
-    }
+        const link = document.createElement("a");
+        link.href = fileContent;
+        link.download = `${name}_${fileId}.${type.split('/')[1]}`;
+
+        // Append the link to the body, click it, and remove it
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    });
   };
 
   deleteFile = (fileId) => {
@@ -81,10 +92,14 @@ class Drive extends Component {
 
     // Save the updated files array to local storage
     localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
+    localStorage.removeItem(`fileDetails_${fileId}`); // Remove individual file details from local storage
 
-    // Remove file details and content from local storage
-    localStorage.removeItem(`fileDetails_${fileId}`);
-    localStorage.removeItem(`fileContent_${fileId}`);
+    // Remove file details and content from Firebase
+    const driveFilesRef = ref(db, 'drive_files');
+    set(driveFilesRef, updatedFiles);
+    
+    const fileContentRef = ref(db, `fileContent_${fileId}`);
+    set(fileContentRef, null);
   };
 
   fileData = () => {
@@ -129,9 +144,12 @@ class Drive extends Component {
   };
 
   componentDidMount() {
-    // Load uploaded files from local storage on component mount
-    const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles")) || [];
-    this.setState({ uploadedFiles: storedFiles });
+    // Load uploaded files from Firebase on component mount
+    const driveFilesRef = ref(db, 'drive_files');
+    onValue(driveFilesRef, (snapshot) => {
+      const storedFiles = snapshot.exists() ? snapshot.val() : [];
+      this.setState({ uploadedFiles: storedFiles });
+    });
   }
 
   render() {
